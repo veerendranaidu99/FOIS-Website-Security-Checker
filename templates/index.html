@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FOIS | Website Security Header Checker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="topbar">
+    <div class="brand">FOIS <span>SECURITY LAB</span></div>
+    <p>Website Security Header Checker</p>
+</header>
+
+<main class="container">
+    <section class="hero">
+        <span class="badge">FUNDAMENTALS OF INFORMATION SECURITY</span>
+        <h1>Check Website <span>Security Headers</span></h1>
+        <p class="intro">Inspect selected HTTP response headers and learn what they do.</p>
+
+        <form method="POST" class="checker-form">
+            <label for="url">Website URL</label>
+            <div class="input-row">
+                <input type="text" id="url" name="url" maxlength="2048"
+                       placeholder="https://example.com" value="{{ url }}" required>
+                <button type="submit">Check Security</button>
+            </div>
+            <p class="hint">Use only on public websites you are authorised to assess.</p>
+        </form>
+    </section>
+
+    {% if error %}
+    <section class="error" role="alert">
+        <h2>Check could not be completed</h2>
+        <p>{{ error }}</p>
+    </section>
+    {% endif %}
+
+    {% if report %}
+    <section class="panel">
+        <h2>Assessment Report</h2>
+        <p class="scanned-url"><strong>Website:</strong> {{ report.url }}</p>
+        <div class="summary">
+            <div class="summary-card"><span>Header Presence Score</span><strong>{{ report.score }}%</strong></div>
+            <div class="summary-card"><span>Headers Detected</span><strong>{{ report.present_count }}/{{ report.total }}</strong></div>
+            <div class="summary-card"><span>HTTP Status</span><strong>{{ report.status_code }}</strong></div>
+        </div>
+        <p class="notice">This score only counts header presence. It is not an overall website security rating.</p>
+        <h3>Header Details</h3>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Header</th><th>Status</th><th>Observed Value</th><th>Purpose</th><th>Recommendation</th></tr></thead>
+                <tbody>
+                {% for item in report.results %}
+                <tr>
+                    <td class="header-name">{{ item.name }}</td>
+                    <td>
+                        {% if item.status == "Present" %}
+                        <span class="status present">Present</span>
+                        {% else %}
+                        <span class="status missing">Missing</span>
+                        {% endif %}
+                    </td>
+                    <td class="value">{{ item.value }}</td>
+                    <td>{{ item.description }}</td>
+                    <td>{{ item.recommendation }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <p class="disclaimer">A present header can still be configured incorrectly. Review the observed value and website requirements before drawing conclusions.</p>
+    </section>
+    {% endif %}
+
+    <section class="panel learning">
+        <h2>Why these headers matter</h2>
+        <div class="cards">
+            <article><h3>Content Security Policy</h3><p>Restricts the sources from which page resources can load.</p></article>
+            <article><h3>HTTPS Enforcement</h3><p>HSTS tells supporting browsers to use HTTPS for future connections.</p></article>
+            <article><h3>Clickjacking</h3><p>Frame-related controls can limit embedding in other pages.</p></article>
+            <article><h3>Information Security</h3><p>Header checks provide evidence for basic security configuration reviews.</p></article>
+        </div>
+    </section>
+</main>
+
+<footer>
+    <p>FOIS Project · Fundamentals of Information Security</p>
+    <p>Educational tool for authorised assessments.</p>
+</footer>
+</body>
+</html>
